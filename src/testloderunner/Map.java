@@ -11,11 +11,14 @@ import java.util.Scanner; // Import the Scanner class to read text files
 
 public class Map {
 	
+	private int START_CANVAS_XX = 30;
+	private int START_CANVAS_YY = 30;
+	
 	private int blocklen = 50; //side of a block length, its a square
-	private int maplen = 10; //side of a map in numbers of blocks, its a square
+	private int maplen   = 10; //side of a map in numbers of blocks, its a square
 	
 	public class MapBlock {
-		public Rectangle2D myrect;
+		public Rectangle2D myrect;	//for canvas painting
 		public BLOCK_TYPE mytype;
 		
 		public MapBlock(int placeX, int placeY, int blocklen, BLOCK_TYPE blocktype) {
@@ -46,15 +49,38 @@ public class Map {
 		return myblocks[xx][yy].mytype;
 	}
 	
+	public MAP_LOCATION GetMapLocFromCanvas(int canvas_xx, int canvas_yy)
+	{
+		MAP_LOCATION maploc = new MAP_LOCATION();
+		
+		int temp = canvas_xx - START_CANVAS_XX;
+		maploc.START_XX = temp / blocklen;
+		temp %= blocklen;
+		if (temp == 0)
+			maploc.END_XX = maploc.START_XX;
+		else
+			maploc.END_XX = maploc.START_XX + 1;
+		
+		temp = canvas_yy - START_CANVAS_YY;
+		maploc.START_YY = temp / blocklen;
+		temp %= blocklen;
+		if (temp == 0)
+			maploc.END_YY = maploc.START_YY;
+		else
+			maploc.END_YY = maploc.START_YY + 1;
+		
+		return maploc;
+	}
+	
 	public boolean LoadMap(String filename) {
 		try {
 
 			File  mapfile = new File(filename);
 			Scanner myreader = new Scanner(mapfile);
-			int placeY = 30;
+			int placeY = START_CANVAS_YY;
 			for (int yy=0; yy < maplen; yy++)
 			{
-				int placeX = 30;
+				int placeX = START_CANVAS_XX;
 
 				String line = myreader.nextLine();
 				for (int xx=0; xx < maplen; xx++)
