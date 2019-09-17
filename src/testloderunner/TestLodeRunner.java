@@ -38,11 +38,14 @@ public class TestLodeRunner extends JPanel implements KeyListener, ActionListene
 	
 	final static int SCREEN_LEN = 560;
 	
-	final static int SCREEN_TOP_YY  = 30;
-	final static int SCREEN_LEFT_XX = 30;
+	final static int SCREEN_TOP_YY    =  30;
+	final static int SCREEN_BOTTOM_YY = 480;
+	final static int SCREEN_LEFT_XX   =  30;
+	final static int SCREEN_RIGHT_XX  = 480;
 	
 	int player_loc_xx = SCREEN_LEFT_XX;
 	int player_loc_yy = SCREEN_TOP_YY;
+	MAP_LOCATION old_player_map_loc;
 	
 	public void keyPressed(KeyEvent e) {  
 		char cc = e.getKeyChar();
@@ -79,31 +82,51 @@ public class TestLodeRunner extends JPanel implements KeyListener, ActionListene
     public void keyTyped(KeyEvent e) {  
         //System.out.println("Key Typed");  
     } 
-	
-	public void actionPerformed(ActionEvent ee) {
-		//this is called about 30 frames a second
-		
-		//player movement
-		//(1) check in bounds of game screen
-
-
+    
+    public void CalculatePlayerMovement() {
+    	//player movement
+    	//(1) check in bounds of game screen
+    	//(2) can only move up or down on ladders
 
 		if (playermoveflag == PlayerMoveFlag.PLAYER_UP)
 		{
-			//(1)
-			if (player_loc_yy > SCREEN_TOP_YY)
+			if (player_loc_yy > SCREEN_TOP_YY) //(1)
+			{
 				player_loc_yy--;
+			}
 		}
 		else if (playermoveflag == PlayerMoveFlag.PLAYER_DOWN)
-			player_loc_yy++;
+		{
+			if (player_loc_yy < SCREEN_BOTTOM_YY) //(1)
+			{
+				player_loc_yy++;
+			}
+		}
 		else if (playermoveflag == PlayerMoveFlag.PLAYER_RIGHT)
-			player_loc_xx++;
+		{
+			//(1)
+			if (player_loc_xx < SCREEN_RIGHT_XX)
+				player_loc_xx++;
+		}
 		else if (playermoveflag == PlayerMoveFlag.PLAYER_LEFT)
 		{
 			//(1)
 			if (player_loc_xx > SCREEN_LEFT_XX)
 				player_loc_xx--;
 		}
+		
+		MAP_LOCATION maploc = map.GetMapLocFromCanvas(player_loc_xx, player_loc_yy);
+		if (old_player_map_loc.equals(maploc) == false)
+		{
+			old_player_map_loc.Copy(maploc);
+			old_player_map_loc.DebugPrint();
+		}
+    }
+	
+	public void actionPerformed(ActionEvent ee) {
+		//this is called about 30 frames a second
+		CalculatePlayerMovement();
+		
 		
 		repaint();
 	}
@@ -151,6 +174,7 @@ public class TestLodeRunner extends JPanel implements KeyListener, ActionListene
 	}
 	
 	public TestLodeRunner() {
+		old_player_map_loc = new MAP_LOCATION();
 		setPreferredSize(new Dimension(SCREEN_LEN,SCREEN_LEN));
 		time.start();
 	}
